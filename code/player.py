@@ -6,8 +6,9 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, init_position, group, path, collision_sprites):
         super().__init__(group)
         self.import_assets(path)
-        self.image = pygame.Surface((100, 100))
-        self.image.fill("red")
+        self.frame_index = 0
+        self.status = "down_idle"
+        self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(center = init_position)
 
         # float based movement
@@ -25,26 +26,43 @@ class Player(pygame.sprite.Sprite):
             if index == 0:
                 for name in folder[1]:
                     self.animations[name] = []
-        
-        print(self.animations)
-            
-    
+            else:
+                for file_name in sorted(folder[2], 
+                                        key = lambda string: string.split("."[0])):
+                    file_path = folder[0].replace("\\", "/") + "/" + file_name
+                    image = pygame.image.load(file_path).convert_alpha()
+                    # image_size = v2(image.get_size()) * 3
+                    # scaled_image = pygame.transform.scale(image, (image_size))
+                    key = folder[0].split("\\")[1]
+                    self.animations[key].append(image)
+
     def handle_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
             self.direction.y = -1
+            self.status = "up"
         elif keys[pygame.K_DOWN]:
             self.direction.y = 1
+            self.status = "down"
         else: 
             self.direction.y = 0
         
         if keys[pygame.K_LEFT]:
             self.direction.x = -1
+            self.status = "left"
         elif keys[pygame.K_RIGHT]:
             self.direction.x = 1
+            self.status = "right"
         else: 
             self.direction.x = 0
     
+    def animate(self, delta_time):
+        current_animation = self.animations[self.status]
+        self.frame_index += 7 * delta_time
+        if self.frame_index >= len(current_animation):
+            self.frame_index = 0
+        self.image = current_animation[int(self.frame_index)]
+        
     def move(self, delta_time):
         # checks if the vector is longer than 0
         # if match, it gets normalized
@@ -61,3 +79,4 @@ class Player(pygame.sprite.Sprite):
     def update(self, delta_time):
         self.handle_input()
         self.move(delta_time)
+        self.animate(delta_time)

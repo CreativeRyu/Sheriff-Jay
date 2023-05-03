@@ -16,7 +16,7 @@ class Game:
         self.setup()
         
     def setup(self):
-        Player((200, 200), self.all_sprites, gs.PATHS["player"], self.all_sprites)
+        Player((200, 200), self.all_sprites, gs.PATHS["player"], None)
         
     def execute_gameloop(self):
         while True:
