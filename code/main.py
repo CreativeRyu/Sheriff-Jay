@@ -1,5 +1,6 @@
 import pygame
 import sys
+from allsprites import AllSprites
 import game_settings as gs
 from player import Player
 
@@ -11,12 +12,12 @@ class Game:
         self.game_clock = pygame.time.Clock()
         
         # Groups
-        self.all_sprites = pygame.sprite.Group()
+        self.all_sprites = AllSprites()
         
         self.setup()
         
     def setup(self):
-        Player((200, 200), self.all_sprites, gs.PATHS["player"], None)
+        self.player = Player((200, 200), self.all_sprites, gs.PATHS["player"], None)
         
     def execute_gameloop(self):
         while True:
@@ -33,7 +34,7 @@ class Game:
             
             # draw Groups
             self.game_display.fill("White")
-            self.all_sprites.draw(self.game_display)
+            self.all_sprites.custom_draw(self.player)
             
             pygame.display.update()
 
