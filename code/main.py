@@ -27,7 +27,7 @@ class Game:
         
         # level objects
         for level_object in tmx_map.get_layer_by_name("level_objects_Layer"):
-            SpriteObject((level_object.x, level_object.y), 
+            SpriteObject((level_object.x, level_object.y),
                             level_object.image, self.all_sprites)
         
         # Entity for Player Spawning
