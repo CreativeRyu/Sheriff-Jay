@@ -1,8 +1,10 @@
 import pygame
 import sys
 from allsprites import AllSprites
+from spriteobject import SpriteObject
 import game_settings as gs
 from player import Player
+from pytmx.util_pygame import load_pygame
 
 class Game:
     def __init__(self):
@@ -14,10 +16,25 @@ class Game:
         # Groups
         self.all_sprites = AllSprites()
         
-        self.setup()
+        self.init_level()
         
-    def setup(self):
-        self.player = Player((200, 200), self.all_sprites, gs.PATHS["player"], None)
+    def init_level(self):
+        # import tmx data from Tiled
+        # Tiles
+        tmx_map = load_pygame("data/game_map.tmx")
+        for x, y, surface in tmx_map.get_layer_by_name("Zaun_Layer").tiles():
+            SpriteObject((x * 64, y * 64), surface, self.all_sprites)
+        
+        # level objects
+        for level_object in tmx_map.get_layer_by_name("level_objects_Layer"):
+            SpriteObject((level_object.x, level_object.y), 
+                            level_object.image, self.all_sprites)
+        
+        # Entity for Player Spawning
+        for entity in tmx_map.get_layer_by_name("Entities_Layer"):
+            if entity.name == "Player":
+                self.player = Player((entity.x, entity.y), 
+                                        self.all_sprites, gs.PATHS["player"], None)
         
     def execute_gameloop(self):
         while True:

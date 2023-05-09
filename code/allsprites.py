@@ -16,9 +16,9 @@ class AllSprites(pygame.sprite.Group):
         
         # blit surfaces
         self.display_surface.blit(self.background, - self.offset)
-
+        
         # sprites inside of the group
-        for sprite in self.sprites():
+        for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
             offset_rect = sprite.image.get_rect(center = sprite.rect.center)
             offset_rect.center -= self.offset
             self.display_surface.blit(sprite.image, offset_rect)
