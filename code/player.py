@@ -3,7 +3,7 @@ from pygame.math import Vector2 as v2
 from os import walk
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, init_position, group, path, collision_sprites):
+    def __init__(self, init_position, group, path, collision_sprites, create_bullet):
         super().__init__(group)
         self.import_assets(path)
         self.frame_index = 0
@@ -17,11 +17,14 @@ class Player(pygame.sprite.Sprite):
         self.speed = 220
         
         # Collisions
-        self.hitbox = self.rect.inflate(0, -self.rect.height / 2)
+        self.hitbox = self.rect.inflate(-self.rect.width * 0.5, -self.rect.height / 2)
         self.collision_sprites = collision_sprites
         
         # Attacking
         self.is_attacking = False
+        
+        self.create_bullet = create_bullet
+        self.is_bullet_shot = False
     
     def import_assets(self, path):
         self.animations = {}
@@ -74,29 +77,69 @@ class Player(pygame.sprite.Sprite):
                 self.is_attacking = True
                 self.direction = v2()
                 self.frame_index = 0
-            
+                self.is_bullet_shot = False
+                
+                match self.status.split("_")[0]:
+                    case "left": 
+                        self.bullet_direction = v2(-1,0)
+                    case "right": 
+                        self.bullet_direction = v2(1,0)
+                    case "up": 
+                        self.bullet_direction = v2(0,-1)
+                    case "down": 
+                        self.bullet_direction = v2(0,1)
+                    
+    
     def animate(self, delta_time):
         current_animation = self.animations[self.status]
         self.frame_index += 7 * delta_time
+
+        # Bullet wird erst ausgelöst, wenn der dritte Frame der Animation gezeigt wird
+        if int(self.frame_index) == 2 and self.is_attacking and not self.is_bullet_shot:
+            bullet_start_position = self.rect.center + self.bullet_direction * 64
+            self.create_bullet(bullet_start_position, self.bullet_direction)
+            self.is_bullet_shot = True
+        
         if self.frame_index >= len(current_animation):
             self.frame_index = 0
             if self.is_attacking:
                 self.is_attacking = False
         self.image = current_animation[int(self.frame_index)]
-        
+    
     def move(self, delta_time):
         # checks if the vector is longer than 0
         # if match, it gets normalized
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
+        
         self.position.x += self.direction.x * self.speed * delta_time
         self.hitbox.centerx = round(self.position.x)
         self.rect.centerx = self.hitbox.centerx
+        self.collision("horizontal")
         
         self.position.y += self.direction.y * self.speed * delta_time
         self.hitbox.centery = round(self.position.y)
         self.rect.centery = self.hitbox.centery
+        self.collision("vertical")
     
+    def collision(self, axis):
+        for sprite in self.collision_sprites.sprites():
+            if sprite.hitbox.colliderect(self.hitbox):
+                if axis == "horizontal":
+                    if self.direction.x > 0:
+                        self.hitbox.right = sprite.hitbox.left
+                    if self.direction.x < 0:
+                        self.hitbox.left = sprite.hitbox.right
+                    self.rect.centerx = self.hitbox.centerx
+                    self.position.x = self.hitbox.centerx
+                else:
+                    if self.direction.y > 0:
+                        self.hitbox.bottom = sprite.hitbox.top
+                    if self.direction.y < 0:
+                        self.hitbox.top = sprite.hitbox.bottom
+                    self.rect.centery = self.hitbox.centery
+                    self.position.y = self.hitbox.centery
+
     def update(self, delta_time):
         self.handle_input()
         self.set_status()
