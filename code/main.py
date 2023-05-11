@@ -5,6 +5,7 @@ from spriteobject import SpriteObject, Bullet
 import game_settings as gs
 from player import Player
 from pytmx.util_pygame import load_pygame
+from enemy import Coffin, Cactus
 
 class Game:
     def __init__(self):
@@ -21,7 +22,6 @@ class Game:
         self.bullets = pygame.sprite.Group()
         
         self.init_level()
-        
         
     def init_level(self):
         # import tmx data from Tiled
@@ -43,7 +43,24 @@ class Game:
                     group = self.all_sprites,
                     path = gs.PATHS["player"],
                     collision_sprites = self.obstacles,
-                    create_bullet = self.create_bullet)
+                    create_bullet = self.create_bullet
+                    )
+            
+            if entity.name == "Coffin":
+                Coffin(
+                    init_position = (entity.x, entity.y),
+                    group = self.all_sprites,
+                    path = gs.PATHS["coffin"],
+                    collision_sprites = self.obstacles
+                )
+            
+            if entity.name == "Cactus":
+                Cactus(
+                    init_position = (entity.x, entity.y),
+                    group = self.all_sprites,
+                    path = gs.PATHS["cactus"],
+                    collision_sprites = self.obstacles
+                )
         
     def create_bullet(self, position, direction):
         Bullet(position, direction, self.bullet_surface, [self.all_sprites, self.bullets])
