@@ -10,7 +10,7 @@ from enemy import Coffin, Cactus
 class Game:
     def __init__(self):
         pygame.init()
-        self.game_display = pygame.display.set_mode((gs.WINDOW_WIDTH, 
+        self.game_display = pygame.display.set_mode((gs.WINDOW_WIDTH,
                                                         gs. WINDOW_HEIGHT))
         pygame.display.set_caption("Sheriff Jay")
         self.game_clock = pygame.time.Clock()
@@ -44,14 +44,15 @@ class Game:
                     path = gs.PATHS["player"],
                     collision_sprites = self.obstacles,
                     create_bullet = self.create_bullet
-                    )
+                )
             
             if entity.name == "Coffin":
                 Coffin(
                     init_position = (entity.x, entity.y),
                     group = self.all_sprites,
                     path = gs.PATHS["coffin"],
-                    collision_sprites = self.obstacles
+                    collision_sprites = self.obstacles,
+                    player = self.player
                 )
             
             if entity.name == "Cactus":
@@ -59,7 +60,8 @@ class Game:
                     init_position = (entity.x, entity.y),
                     group = self.all_sprites,
                     path = gs.PATHS["cactus"],
-                    collision_sprites = self.obstacles
+                    collision_sprites = self.obstacles,
+                    player = self.player
                 )
         
     def create_bullet(self, position, direction):
