@@ -61,7 +61,8 @@ class Game:
                     group = self.all_sprites,
                     path = gs.PATHS["cactus"],
                     collision_sprites = self.obstacles,
-                    player = self.player
+                    player = self.player,
+                    create_bullet = self.create_bullet
                 )
         
     def create_bullet(self, position, direction):

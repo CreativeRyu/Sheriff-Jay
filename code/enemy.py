@@ -81,7 +81,7 @@ class Coffin(Entity, Monster):
         self.animate(delta_time)
 
 class Cactus(Entity, Monster):
-    def __init__(self, init_position, group, path, collision_sprites, player):
+    def __init__(self, init_position, group, path, collision_sprites, player, create_bullet):
         super().__init__(init_position, group, path, collision_sprites)
         
         # Overwrites
@@ -93,17 +93,39 @@ class Cactus(Entity, Monster):
         self.walk_radius = 500
         self.attack_radius = 300
         
+        # Bullets
+        self.create_bullet = create_bullet
+        self.is_bullet_shot = False
+    
+    def attack(self):
+        distance = self.get_player_distance_and_direction()[0]
+        if distance < self.attack_radius and not self.is_attacking:
+            self.is_attacking = True
+            self.frame_index = 0
+            self.is_bullet_shot = False
+        
+        if self.is_attacking:
+            self.status = self.status.split("_")[0] + "_attack"
+        
     def animate(self, delta_time):
         current_animation = self.animations[self.status]
+        
+        if int(self.frame_index) == 6 and self.is_attacking and not self.is_bullet_shot:
+            self.bullet_direction = self.get_player_distance_and_direction()[1]
+            bullet_start_position = self.rect.center + self.bullet_direction * 64
+            self.create_bullet(bullet_start_position, self.bullet_direction)
+            self.is_bullet_shot = True
+            
         self.frame_index += 7 * delta_time
         if self.frame_index >= len(current_animation):
             self.frame_index = 0
-            # if self.is_attacking:
-            #     self.is_attacking = False
+            if self.is_attacking:
+                self.is_attacking = False
         self.image = current_animation[int(self.frame_index)]
 
     def update(self, delta_time):
         self.face_player()
         self.walk_to_player()
+        self.attack()
         self.move(delta_time)
         self.animate(delta_time)
