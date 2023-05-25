@@ -22,7 +22,24 @@ class Entity(pygame.sprite.Sprite):
         
         # Attacking
         self.is_attacking = False
-    
+        
+        # Health
+        self.health = 3
+        self.is_invincible = False
+        self.hit_time = None
+        
+    def take_damage(self):
+        if not self.is_invincible:
+            self.health -= 1
+            self.is_invincible = True
+            self.hit_time = pygame.time.get_ticks()
+            
+    def invincibility_timer(self):
+        if self.is_invincible:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.hit_time > 500:
+                self.is_invincible = False
+            
     def import_assets(self, path):
         self.animations = {}
         for index, folder in enumerate(walk(path)):
@@ -34,8 +51,6 @@ class Entity(pygame.sprite.Sprite):
                                         key = lambda string: string.split("."[0])):
                     file_path = folder[0].replace("\\", "/") + "/" + file_name
                     image = pygame.image.load(file_path).convert_alpha()
-                    # image_size = v2(image.get_size()) * 3
-                    # scaled_image = pygame.transform.scale(image, (image_size))
                     key = folder[0].split("\\")[1]
                     self.animations[key].append(image)
     

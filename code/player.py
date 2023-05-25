@@ -77,3 +77,6 @@ class Player(Entity):
         self.set_status()
         self.move(delta_time)
         self.animate(delta_time)
+        
+        self.invincibility_timer()
+        print(self.health)

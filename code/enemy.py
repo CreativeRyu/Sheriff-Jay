@@ -48,21 +48,35 @@ class Coffin(Entity, Monster):
         self.player = player
         self.notice_radius = 550
         self.walk_radius = 400
-        self.attack_radius = 50
-
+        self.attack_radius = 60
+    
+    def attack(self):
+        distance = self.get_player_distance_and_direction()[0]
+        if distance < self.attack_radius and not self.is_attacking:
+            self.is_attacking = True
+            self.frame_index = 0 # Attacken Animation fängt hier von vorne an 
+            # und soll nicht mitten drin abgespielt werden
+        if self.is_attacking:
+            self.status = self.status.split("_")[0] + "_attack"
+    
     def animate(self, delta_time):
         current_animation = self.animations[self.status]
         self.frame_index += 7 * delta_time
         
+        if int(self.frame_index) == 4 and self.is_attacking:
+            if self.get_player_distance_and_direction()[0] <= self.attack_radius:
+                self.player.take_damage()
+        
         if self.frame_index >= len(current_animation):
             self.frame_index = 0
-            # if self.is_attacking:
-            #     self.is_attacking = False
+            if self.is_attacking:
+                self.is_attacking = False
         self.image = current_animation[int(self.frame_index)]
 
     def update(self, delta_time):
         self.face_player()
         self.walk_to_player()
+        self.attack()
         self.move(delta_time)
         self.animate(delta_time)
 
