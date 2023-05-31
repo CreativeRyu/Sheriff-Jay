@@ -1,6 +1,7 @@
 import pygame
 from pygame.math import Vector2 as v2
 from os import walk
+from math import sin
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, init_position, group, path, collision_sprites):
@@ -29,9 +30,13 @@ class Entity(pygame.sprite.Sprite):
         self.is_invincible = False
         self.hit_time = None
         
+        # Sound
+        self.hit_sfx = pygame.mixer.Sound("sound/hit.mp3")
+        
     def take_damage(self):
         if not self.is_invincible:
             self.health -= 1
+            self.hit_sfx.play()
             self.check_death()
             self.is_invincible = True
             self.hit_time = pygame.time.get_ticks()
@@ -45,6 +50,20 @@ class Entity(pygame.sprite.Sprite):
             current_time = pygame.time.get_ticks()
             if current_time - self.hit_time > 500:
                 self.is_invincible = False
+    
+    def blink(self):
+        if self.is_invincible and self.is_positive_wave_value():
+            mask = pygame.mask.from_surface(self.image)
+            white_surface = mask.to_surface()
+            white_surface.set_colorkey((0,0,0)) # Removes a color with one specific value
+            self.image = white_surface
+    
+    def is_positive_wave_value(self):
+        value = sin(pygame.time.get_ticks())
+        if value >= 0:
+            return True
+        else:
+            return False
             
     def import_assets(self, path):
         self.animations = {}

@@ -80,6 +80,7 @@ class Coffin(Entity, Monster):
         self.attack()
         self.move(delta_time)
         self.animate(delta_time)
+        self.blink()
         self.invincibility_timer()
 
 class Cactus(Entity, Monster):
@@ -132,4 +133,5 @@ class Cactus(Entity, Monster):
         self.attack()
         self.move(delta_time)
         self.animate(delta_time)
+        self.blink()
         self.invincibility_timer()

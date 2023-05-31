@@ -22,7 +22,12 @@ class Game:
         self.bullets = pygame.sprite.Group()
         self.monsters = pygame.sprite.Group()
         
+        # Background Music
+        self.bg_music = pygame.mixer.Sound("sound/Tal_Tal_Heights.mp3")
+        self.bullet_sfx = pygame.mixer.Sound("sound/bullet.wav")
+        
         self.init_level()
+        self.bg_music.play(loops = -1)
         
     def init_level(self):
         # import tmx data from Tiled
@@ -68,6 +73,7 @@ class Game:
         
     def create_bullet(self, position, direction):
         Bullet(position, direction, self.bullet_surface, [self.all_sprites, self.bullets])
+        self.bullet_sfx.play()
     
     def check_bullet_collision(self):
         # Bullet Obstacle Collision
