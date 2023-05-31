@@ -62,7 +62,7 @@ class Player(Entity):
 
         # Bullet wird erst ausgelöst, wenn der dritte Frame der Animation gezeigt wird
         if int(self.frame_index) == 2 and self.is_attacking and not self.is_bullet_shot:
-            bullet_start_position = self.rect.center + self.bullet_direction * 64
+            bullet_start_position = self.rect.center + self.bullet_direction * 75
             self.create_bullet(bullet_start_position, self.bullet_direction)
             self.is_bullet_shot = True
         
@@ -71,7 +71,8 @@ class Player(Entity):
             if self.is_attacking:
                 self.is_attacking = False
         self.image = current_animation[int(self.frame_index)]
-
+        self.mask = pygame.mask.from_surface(self.image)
+        
     def update(self, delta_time):
         self.handle_input()
         self.set_status()

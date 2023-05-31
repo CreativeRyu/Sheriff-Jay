@@ -20,6 +20,7 @@ class Game:
         self.all_sprites = AllSprites()
         self.obstacles = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
+        self.monsters = pygame.sprite.Group()
         
         self.init_level()
         
@@ -49,7 +50,7 @@ class Game:
             if entity.name == "Coffin":
                 Coffin(
                     init_position = (entity.x, entity.y),
-                    group = self.all_sprites,
+                    group = [self.all_sprites, self.monsters],
                     path = gs.PATHS["coffin"],
                     collision_sprites = self.obstacles,
                     player = self.player
@@ -58,7 +59,7 @@ class Game:
             if entity.name == "Cactus":
                 Cactus(
                     init_position = (entity.x, entity.y),
-                    group = self.all_sprites,
+                    group = [self.all_sprites, self.monsters],
                     path = gs.PATHS["cactus"],
                     collision_sprites = self.obstacles,
                     player = self.player,
@@ -67,6 +68,23 @@ class Game:
         
     def create_bullet(self, position, direction):
         Bullet(position, direction, self.bullet_surface, [self.all_sprites, self.bullets])
+    
+    def check_bullet_collision(self):
+        # Bullet Obstacle Collision
+        for obstacle in self.obstacles.sprites():
+            pygame.sprite.spritecollide(obstacle, self.bullets, True, pygame.sprite.collide_mask)
+        
+        # Bullet Monster Collision
+        for bullet in self.bullets.sprites():
+            sprites =  pygame.sprite.spritecollide(bullet, self.monsters, False, pygame.sprite.collide_mask)
+            if sprites:
+                bullet.kill()
+                for sprite in sprites:
+                    sprite.take_damage()
+                    
+        # Bullet Player Collision
+        if pygame.sprite.spritecollide(self.player, self.bullets, True, pygame.sprite.collide_mask):
+            self.player.take_damage()
         
     def execute_gameloop(self):
         while True:
@@ -75,11 +93,12 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                    
+            
             delta_time = self.game_clock.tick() / 1000
             
             # update Groups
             self.all_sprites.update(delta_time)
+            self.check_bullet_collision()
             
             # draw Groups
             self.game_display.fill("White")

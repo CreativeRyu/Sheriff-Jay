@@ -19,6 +19,7 @@ class Entity(pygame.sprite.Sprite):
         # Collisions
         self.hitbox = self.rect.inflate(-self.rect.width * 0.5, -self.rect.height / 2)
         self.collision_sprites = collision_sprites
+        self.mask = pygame.mask.from_surface(self.image)
         
         # Attacking
         self.is_attacking = False
@@ -31,8 +32,13 @@ class Entity(pygame.sprite.Sprite):
     def take_damage(self):
         if not self.is_invincible:
             self.health -= 1
+            self.check_death()
             self.is_invincible = True
             self.hit_time = pygame.time.get_ticks()
+    
+    def check_death(self):
+        if self.health <= 0:
+            self.kill()
             
     def invincibility_timer(self):
         if self.is_invincible:
